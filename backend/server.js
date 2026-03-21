@@ -1,5 +1,5 @@
 const express = require("express");
-const dotenv = require("dotenv");
+require("dotenv").config();
 const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
@@ -11,10 +11,6 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-
-
-// Load env variables
-dotenv.config();
 
 
 // 🔗 Connect MongoDB

@@ -47,14 +47,14 @@ const orderItems = [];
 for (const item of cart.items) {
   const product = await Product.findById(item.product._id);
 
-  // 🚫 Check stock
+  //  Check stock
   if (!product || product.stock < item.quantity) {
     return res.status(400).json({
       message: `Not enough stock for ${product?.name || "product"}`
     });
   }
 
-  // ✅ Reduce stock
+  //  Reduce stock
   product.stock -= item.quantity;
   await product.save();
 
@@ -109,7 +109,7 @@ const placeOnlineOrder = async (req, res) => {
 for (const item of cart.items) {
   const product = await Product.findById(item.product._id);
 
-  // 🚫 Check stock
+  //  Check stock
   if (!product || product.stock < item.quantity) {
     return res.status(400).json({
       message: `Not enough stock for ${product?.name || "product"}`
@@ -241,7 +241,7 @@ const approveCancellation = async (req, res) => {
 
    item.status = "CANCELLED";
 
-// 🔥 restore stock
+//  restore stock
 const product = await Product.findById(item.product);
 if (product) {
   product.stock += item.quantity;
