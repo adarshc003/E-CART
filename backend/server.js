@@ -22,7 +22,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-   origin: "https://e-cart-orcin.vercel.app"
+   origin: "https://e-cart-orcin.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
