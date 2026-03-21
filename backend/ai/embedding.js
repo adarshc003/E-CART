@@ -1,0 +1,25 @@
+const { pipeline } = require("@xenova/transformers");
+
+let extractor = null;
+
+const loadModel = async () => {
+  if (!extractor) {
+    extractor = await pipeline(
+      "feature-extraction",
+      "Xenova/all-MiniLM-L6-v2"
+    );
+  }
+  return extractor;
+};
+
+const generateEmbedding = async (text) => {
+  const model = await loadModel();
+  const output = await model(text, { pooling: "mean", normalize: true });
+
+  
+  const embedding = Array.from(output.data);
+
+  return embedding;
+};
+
+module.exports = { generateEmbedding };
