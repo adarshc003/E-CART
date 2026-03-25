@@ -20,12 +20,20 @@ connectDB();
 const app = express();
 
 // Middlewares
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://e-cart-orcin.vercel.app"
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://e-cart-orcin.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // temporarily allow all (for debugging)
+      }
+    },
     credentials: true,
   })
 );
