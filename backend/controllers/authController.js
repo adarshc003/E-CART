@@ -82,101 +82,101 @@ exports.register = async (req, res) => {
 
 
 /* ================= LOGIN ================= */
-// exports.login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     if (email === process.env.ADMIN_EMAIL) {
-//       if (password !== process.env.ADMIN_PASSWORD) {
-//         return res.status(401).json({ message: "Invalid admin credentials" });
-//       }
-
-//       const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET);
-
-//       return res.json({
-//         token,
-//         user: { role: "admin", name: "Admin" },
-//       });
-//     }
-
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(401).json({ message: "Invalid credentials" });
-//     }
-
-//     if (user.isBlocked) {
-//       return res.status(403).json({ message: "Account blocked by admin" });
-//     }
-
-//     const match = await bcrypt.compare(password, user.password);
-//     if (!match) {
-//       return res.status(401).json({ message: "Invalid credentials" });
-//     }
-
-//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-//     const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
-
-//     user.otp = hashedOtp;
-//     user.otpExpiry = Date.now() + 5 * 60 * 1000;
-//     user.otpAttempts = 0;
-//     await user.save();
-
-//     try {
-//       await sendOtpEmail(user.email, otp);
-//     } catch (err) {
-//       return res.status(500).json({ message: "Failed to send OTP" });
-//     }
-
-//     res.json({
-//       message: "OTP sent",
-//       otpRequired: true,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-
 exports.login = async (req, res) => {
   try {
-    console.log("Login request received");
-
     const { email, password } = req.body;
-    console.log("Email:", email);
+
+    if (email === process.env.ADMIN_EMAIL) {
+      if (password !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ message: "Invalid admin credentials" });
+      }
+
+      const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET);
+
+      return res.json({
+        token,
+        user: { role: "admin", name: "Admin" },
+      });
+    }
 
     const user = await User.findOne({ email });
-    console.log("User found:", user ? "YES" : "NO");
-
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    console.log("Password match:", match);
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Account blocked by admin" });
+    }
 
+    const match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    console.log("Generating OTP...");
-
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
 
-    console.log("Sending OTP...");
-    await sendOtpEmail(user.email, otp);
+    user.otp = hashedOtp;
+    user.otpExpiry = Date.now() + 5 * 60 * 1000;
+    user.otpAttempts = 0;
+    await user.save();
 
-    console.log("OTP Sent");
+    try {
+      await sendOtpEmail(user.email, otp);
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to send OTP" });
+    }
 
     res.json({
       message: "OTP sent",
       otpRequired: true,
     });
-
   } catch (err) {
-    console.log("Login error:", err);
     res.status(500).json({ message: err.message });
   }
 };
+
+
+// exports.login = async (req, res) => {
+//   try {
+//     console.log("Login request received");
+
+//     const { email, password } = req.body;
+//     console.log("Email:", email);
+
+//     const user = await User.findOne({ email });
+//     console.log("User found:", user ? "YES" : "NO");
+
+//     if (!user) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const match = await bcrypt.compare(password, user.password);
+//     console.log("Password match:", match);
+
+//     if (!match) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     console.log("Generating OTP...");
+
+//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+//     console.log("Sending OTP...");
+//     await sendOtpEmail(user.email, otp);
+
+//     console.log("OTP Sent");
+
+//     res.json({
+//       message: "OTP sent",
+//       otpRequired: true,
+//     });
+
+//   } catch (err) {
+//     console.log("Login error:", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// };
 
 /* ================= VERIFY OTP ================= */
 exports.verifyOtp = async (req, res) => {
